@@ -39,16 +39,27 @@ int library() {
 	int blockArgsCnstrNum=0;
 	int repeat=0;
 	string previousVal="";
+	
+	//Basic command
+	
 	if (cmd == "cc") {
 		for (int x=0;x<1000;x++) {
+		
+			//make sure no out of range error occurs, and save compile time.
+		
 			if (args[x][0] != "~~~") {
 				cout << args[x][0] << endl;
 			}
+			//Pipe block
+			
 			if (args[x][0]=="|>") {
 				cout << "|> Constructed." << endl;
 				varVal="";
 				blockArgsCnstr="";
 				blockArgsCnstrNum=0;
+				
+				//Block Argument Lexer. (stage 2 lexer)
+				
 				for(int u=0;u<args[x][1].length();u++) {
 					if (args[x][1].at(u) == ':') {
 						blockArgs[blockArgsCnstrNum]=blockArgsCnstr;
@@ -60,10 +71,16 @@ int library() {
 						blockArgsCnstr+=args[x][1].at(u);
 					}
 				}
+				
+				//Read lexed data.
+				
 				for (int y=0;y<blockArgsCnstrNum;y++){
 					cout << "-|>Construction ::argNum = " << y << " ::argTotalNum" << blockArgsCnstrNum << endl;
 					cout << "                     |_ " << blockArgs[y] << endl;
 					if (blockArgs[y].length() > 0) {
+					
+						//piped value
+					
 						if (blockArgs[y].at(0)=='<' && blockArgs[y].at(1)=='|') {
 							string pipeGet="";
 							for(int pipeRead=2;pipeRead<blockArgs[y].length();pipeRead++) {
@@ -71,21 +88,25 @@ int library() {
 							}
 							varVal+="%pipe" + pipeGet + "%";
 						}
+						//var value
 						else if (blockArgs[y]=="-v") {
 							y++;
 							varVal+=varibles[blockArgs[y]];
 							y++;
 						}
+						//Previous value
 						else if (blockArgs[y]=="-^") {
 							varVal=previousVal;
 							cout << "      -perviousVal = " << previousVal << endl;
 							cout << "        |_val = " << varVal << endl;
 						}
+						//array value
 						else if (blockArgs[y]=="-#=>") {
 							y++;
 							varVal+="%arrayOUT%";
 							y++;
 						}
+						//create pipe
 						else if (blockArgs[y]=="-as") {
 							cout << "    |_ Val : (" << blockArgs[y+1] << ")" << endl;
 							cout << "    |_ Piped Val : (" + varVal + ")" << endl;
@@ -97,6 +118,7 @@ int library() {
 					}
 				}
 			}
+			// Array
 			if (args[x][0]=="-#") {
 				varVal="";
 				blockArgsCnstr="";
@@ -135,6 +157,7 @@ int library() {
 				out_stream.close();
 				out_stream.open("CompiledMain.bat", ios::app);
 			}
+			//Define directory to be able to jump to on command.
 			if (args[x][0]=="-@<") {
 				varVal="";
 				blockArgsCnstr="";
@@ -155,16 +178,19 @@ int library() {
 				cout << "    |_ ToDir : (" << args[x][1] << ")" << endl;
 				cout << "       |_ Label : (" << args[x][0] << ")" << endl;
 			}
+			// Goto defined dir
 			if (args[x][0]=="-@>") {
 				cout << "-@> Constructed." << endl;
 				cout << "    |_ ToDir : (" << dir[args[x][1]] << ")" << endl;
 				out_stream << "cd " << dir[args[x][1]] << endl;
 			}
+			// Return to home dir
 			if (args[x][0]=="-<@") {
 				cout << "-<@ Constructed." << endl;
 				cout << "    |_ ToDir : (" << dir[args[x][1]]<< ")" << endl;
 				out_stream << "cd %homeDir%" << endl;
 			}
+			//Varibles
 			if (args[x][0].at(0)=='-' && args[x][0].at(1)=='v' && args[x][0].at(2)=='.') {
 				string createType="";
 				string varName="";
@@ -241,6 +267,7 @@ int library() {
 				out_stream << "set " << varVal2 << "=" << varVal << endl;
 				previousVal="%" + varName + "%";
 			}
+			//Call function
 			if (args[x][0]=="-dcc") {
 				varVal="";
 				blockArgsCnstr="";
@@ -282,6 +309,7 @@ int library() {
 				out_stream << "call dcc_" << varVal << ".bat" << endl;
 				previousVal=varVal;
 			}
+			//Console output
 			if (args[x][0]=="-c") {
 				varVal="";
 				blockArgsCnstr="";
@@ -323,6 +351,7 @@ int library() {
 				out_stream << "Echo " << varVal << endl;
 				previousVal=varVal;
 			}
+			//pause
 			if (args[x][0]=="-pas") {
 				varVal="";
 				blockArgsCnstr="";
@@ -364,18 +393,21 @@ int library() {
 				out_stream << "set /p pause=" << varVal << endl;
 				previousVal=varVal;
 			}
+			//Goto label, :repeatn
 			if (args[x][0]=="-^^") {
 				cout << "-^^ Constructed." << endl;
 				cout << "    |_ Val : (" +args[x][1]+ ")" << endl;
 				out_stream << ":repeat" << repeat << endl;
 				previousVal=args[x][1];
 			}
+			//Goto repeatn
 			if (args[x][0]=="-^^^") {
 				cout << "-^^^ Constructed." << endl;
 				cout << "    |_ Val : (" +args[x][1]+ ")" << endl;
 				out_stream << "goto repeat" << repeat << endl;
 				previousVal=args[x][1];
 			}
+			//Do batch code
 			if (args[x][0]=="-bat") {
 				varVal="";
 				blockArgsCnstr="";
@@ -418,7 +450,7 @@ int library() {
 				previousVal=varVal;
 			}
 		} 
-	} // Declare function
+	} // Declare function, repeated code, I shouldn't of done that.
 	else if (cmd == "dcc") {
 		string dccName="";
 		for (int x=0;x<1000;x++) {
@@ -858,11 +890,17 @@ int main() {
 		cmpZ=0;
 		while(script[cmpX].at(cmpZ) != ';' && cmpZ < script[cmpX].length()) {
 			cout << cmpZ << " " << script[cmpX].length() << " " << script[cmpX] << endl;
+			
+			//Skip whitespaces
+			
 			while(script[cmpX].at(cmpZ) == ' ')
 			{
 				cout << "stage0.moveToCmdField" << endl;
 				cmpZ++;
 			}
+			
+			//Get Command type
+			
 			while(script[cmpX].at(cmpZ) != ' ' && script[cmpX].at(cmpZ) != '{' && script[cmpX].at(cmpZ) != ';' && cmpZ <= script[cmpX].length())
 			{
 				cout << "stage1.getCommand" << endl;
@@ -872,6 +910,9 @@ int main() {
 			}
 			cout << cmd << endl;
 			cout << "outCommand." << endl;
+			
+			//Skip whitespace
+			
 			while((script[cmpX].at(cmpZ) == ' ' && script[cmpX].at(cmpZ) != ';' && cmpZ <= script[cmpX].length()) || (script[cmpX].at(cmpZ) == '{' && script[cmpX].at(cmpZ) != ';' && cmpZ <= script[cmpX].length()))
 			{
 				cout << "stage2.moveToArgsField" << endl;
@@ -879,6 +920,9 @@ int main() {
 			}
 			while(script[cmpX].at(cmpZ) != ';' && cmpZ <= script[cmpX].length()) {
 				cout << cmpZ << " " << script[cmpX].at(cmpZ) << endl;
+				
+				//Skip whitespace
+				
 				if (script[cmpX].at(cmpZ) != ';' && cmpZ <= script[cmpX].length()) {
 					while((script[cmpX].at(cmpZ) == ' ' && script[cmpX].at(cmpZ) != ';' && cmpZ <= script[cmpX].length()) || (script[cmpX].at(cmpZ) == '{' && script[cmpX].at(cmpZ) != ';' && cmpZ <= script[cmpX].length()) || (script[cmpX].at(cmpZ) == ')' && script[cmpX].at(cmpZ) != ';' && cmpZ <= script[cmpX].length()))
 					{
@@ -886,6 +930,9 @@ int main() {
 						cmpZ++;
 					}
 				}
+				
+				//Get Block
+				
 				while(script[cmpX].at(cmpZ) != ' ' && script[cmpX].at(cmpZ) != '(' && script[cmpX].at(cmpZ) != ';' && cmpZ <= script[cmpX].length())
 				{
 					cout << "stage3.getArgs" << endl;
@@ -897,14 +944,23 @@ int main() {
 				argNum++;
 				args[argNum][0]=lcom;
 				lcom="";
+				
+				//Get Block arguments
+				
 				while(script[cmpX].at(cmpZ) == ' ' && script[cmpX].at(cmpZ) == '(' && script[cmpX].at(cmpZ) != ';' && cmpZ <= script[cmpX].length())
 				{
 					cout << "stage4.moveToGetArgVal" << endl;
 					cmpZ++;
 				}
+				
+				//finished command
+				
 				if (script[cmpX].at(cmpZ) != ';' && cmpZ <= script[cmpX].length()) {
 					cmpZ++;
 				}
+				
+				//perpare for repeat
+				
 				while(script[cmpX].at(cmpZ) != ')' && script[cmpX].at(cmpZ) != ';' && cmpZ <= script[cmpX].length())
 				{
 					cout << "stage5.getArgVal" << endl;
@@ -917,6 +973,9 @@ int main() {
 			cout << "--==-- cpl --==-- "<< endl;
 			cout << "      [" << cmd << "]" << endl;
 		}
+		
+	//Call library to lexer data.
+		
 	library();
 	cmd="";
 	cmpX++;
