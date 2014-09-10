@@ -2,12 +2,16 @@
 // CREATED BY :          //
 // DARIUS GRAUSLYS       //
 
+// Include files
+
 #include <unordered_map>
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <windows.h>
 #include <fstream>
+
+//init vars/arrays/hashmaps
 
 using namespace std;
 
@@ -24,6 +28,8 @@ int argNum=-1;
 string args[1000][2];
 stringstream convert;
 int out=0;
+
+//Library, where the magic happens. Stage 2 lexer, and code generation as well as console output.
 
 int library() {
 	string varVal="";
@@ -412,7 +418,7 @@ int library() {
 				previousVal=varVal;
 			}
 		} 
-	}
+	} // Declare function
 	else if (cmd == "dcc") {
 		string dccName="";
 		for (int x=0;x<1000;x++) {
@@ -806,6 +812,8 @@ int library() {
 	}
 	return 0;
 }
+
+//Main, init take in code, parse, stage 1 lexer.
 
 int main() {
 	system("title BatchBlocks 3.0");
